@@ -29,9 +29,6 @@ void XYStateEstimator::updateState(imu_state_t * imu_state_p, gps_state_t * gps_
     // You can access the current imu heading with imu_state_p->heading
     // Also note that math.h is already included so you have access to trig functions [rad]
 
-    ///////////////////////////////////////////////////////////////////////
-    // write code here
-    ///////////////////////////////////////////////////////////////////////
     // get x and y
     float cosOrigLat = cos(origin_lat*PI/180.0);
 

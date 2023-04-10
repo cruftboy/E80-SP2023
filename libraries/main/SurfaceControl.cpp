@@ -58,7 +58,7 @@ void SurfaceControl::navigate(xy_state_t * state, gps_state_t * gps_state_p, int
     yaw_des = atan2(y_des - state->y, x_des - state->x);
     dist = sqrt(pow(y_des - state->y, 2) + pow(x_des - state->x, 2));
 
-    yaw_e = yaw_des-yaw;
+    yaw_e = angleDiff(yaw_des - yaw);
 
     u = yaw_e*Kp;
     uD = dist*Kd;
@@ -70,9 +70,6 @@ void SurfaceControl::navigate(xy_state_t * state, gps_state_t * gps_state_p, int
     float max = abs(uR);
     if(abs(uL) > max) max = abs(uL);
 
-    // scale gain 127/max -> cap to 127
-    uR = 127*uR/max;
-    uL = 127*uL/max;
 
     ///////////////////////////////////////////////////////////////////////
     // don't change code past this point
