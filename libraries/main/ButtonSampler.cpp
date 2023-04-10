@@ -39,3 +39,4 @@ size_t ButtonSampler::writeDataBytes(unsigned char * buffer, size_t idx)
   data_slot[0] = buttonState;
   return idx + sizeof(bool);
 }
+

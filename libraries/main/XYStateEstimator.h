@@ -12,7 +12,15 @@
 typedef struct {
   float x = 0; // x position in global frame [m]
   float y = 0; // y position in global frame [m]
+  float vx = 0; // x velocity in the global frame [m/s]
+  float vy = 0; // y velocity in the global frame [m/s]
+  float ax = 0; // x acceleration in the global frame [m/s]
+  float ay = 0; // y acceleration in the global frame [m/s]
   float yaw = 0; // yaw in global frame [rad] CCW from magnetic east
+  float omega = 0; // yaw angular velocity [rad/sec]
+  float alpha = 0; // yaw angular acceleration [rad/sec]
+  float motora = 0; // left motor control
+  float motorb = 0; // right motor control
 } xy_state_t;
 
 /*
@@ -43,6 +51,7 @@ private:
   // set coordinates of chosen origin below
   const float origin_lat = 34.106465;
   const float origin_lon = -117.712488;
+  const float RADIUS_OF_EARTH = 6378100;
 
   bool gpsAcquired;
 

@@ -35,8 +35,25 @@ void XYStateEstimator::updateState(imu_state_t * imu_state_p, gps_state_t * gps_
     // get x and y
     float cosOrigLat = cos(origin_lat*PI/180.0);
 
-    // get yaw
+    float dlatrad = (gps_state_p->lat - origin_lat)*PI/180;
+    float dlonrad = (gps_state_p->lon - origin_lon)*PI/180;
+
+    state.y = RADIUS_OF_EARTH*dlatrad;
+    state.x = RADIUS_OF_EARTH*dlonrad*cosOrigLat;
+
     float heading_rad = imu_state_p->heading*PI/180.0; // convert to radians
+    float roll_rad = imu_state_p->roll*PI/180.0;
+    float yaw_rad = imu_state_p->pitch*PI/180.0;
+
+
+
+
+    float yaw = -(heading_rad+(PI/2));
+
+    if (yaw > PI) yaw = yaw - PI;
+    if (yaw < -PI) yaw = yaw + PI;
+
+    state.yaw = yaw;
     ///////////////////////////////////////////////////////////////////////
     // don't change code past this point
     ///////////////////////////////////////////////////////////////////////

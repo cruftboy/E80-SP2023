@@ -12,6 +12,9 @@ typedef struct {
   float accelX;   // [mg] (g=acceleration due to gravity)
   float accelY;   // [mg]
   float accelZ;   // [mg]
+  float rawX;
+  float rawY;
+  float rawZ;
   float magX;     // [Gauss]
   float magY;     // [Gauss]
   float magZ;     // [Gauss]
@@ -33,6 +36,8 @@ public:
 
   // Starts the connection to the sensor
   void init(void);
+
+  void updateFilter(int readOffset);
 
   // Reads data from the sensor
   void read(void);
@@ -56,16 +61,21 @@ private:
   // Create sensor instance
   LSM303AGR myIMU;
 
+  static const int window = 50;
+  float movingAccX[window];
+  float movingAccY[window];
+  float movingAccZ[window];
+
   // Offsets applied to raw x/y/z accel values
-  float accel_offsets[3]      = { 1.0F, 1.0F, 1.0F };
+  float accel_offsets[3]      = { 18.7F, 24.25F, 30.5F };
 
   // Offsets applied to raw x/y/z mag values
-  float mag_offsets[3]        = { 1.00, 1.00, 1.00 };
+  float mag_offsets[3]        = {-1.4669, 3.0684, 0.44990};
   
   // Soft iron error compensation matrix
-  float mag_ironcomp[3][3] =  { {  1.00,     0.00,     0.00   },
-                                {  0.00,     1.00,     0.00   },
-                                {  0.00,     0.00,     1.00   } };
+  float mag_ironcomp[3][3] =  { {0.4067,    0.1830,    0.0778},
+                                {0,    0.1174,   -0.8002},
+                                {0,         0,    -0.0222} };
   
 
 };

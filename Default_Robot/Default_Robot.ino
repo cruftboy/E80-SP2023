@@ -20,11 +20,13 @@ Previous Contributors:
 #include <XYStateEstimator.h>
 #include <ADCSampler.h>
 #include <ErrorFlagSampler.h>
-#include <ButtonSampler.h> // A template of a data source library
+#include <Temp.h> // A template of a data source library
 #include <MotorDriver.h>
 #include <Logger.h>
 #include <Printer.h>
+#include <Salt.h>
 #include <SurfaceControl.h>
+#include <Sonar.h>
 #define UartSerial Serial1
 #define DELAY 0
 #include <GPSLockLED.h>
@@ -38,15 +40,18 @@ SensorGPS gps;
 Adafruit_GPS GPS(&UartSerial);
 ADCSampler adc;
 ErrorFlagSampler ef;
-ButtonSampler button_sampler;
+Temp temp;
 SensorIMU imu;
 Logger logger;
 Printer printer;
 GPSLockLED led;
+Salt salt;
+Sonar sonar;
 
 // loop start recorder
 int loopStartTime;
 int currentTime;
+int accOffset;
 int current_way_point = 0;
 volatile bool EF_States[NUM_FLAGS] = {1,1,1};
 
@@ -56,7 +61,6 @@ const int waypoint_dimensions = 2;       // waypoints are set to have two pieces
 double waypoints [] = { 0, 10, 0, 0 };   // listed as x0,y0,x1,y1, ... etc.
 
 ////////////////////////* Setup *////////////////////////////////
-
 void setup() {
   
   logger.include(&imu);
@@ -66,14 +70,18 @@ void setup() {
   logger.include(&motor_driver);
   logger.include(&adc);
   logger.include(&ef);
-  logger.include(&button_sampler);
+  logger.include(&temp);
+  logger.include(&salt);
+  logger.include(&sonar);
   logger.init();
 
   printer.init();
   ef.init();
-  button_sampler.init();
+  temp.init();
+  salt.init();
   imu.init();
   UartSerial.begin(9600);
+  sonar.init();
   gps.init(&GPS);
   motor_driver.init();
   led.init();
@@ -89,7 +97,8 @@ void setup() {
   gps.lastExecutionTime             = loopStartTime - LOOP_PERIOD + GPS_LOOP_OFFSET;
   adc.lastExecutionTime             = loopStartTime - LOOP_PERIOD + ADC_LOOP_OFFSET;
   ef.lastExecutionTime              = loopStartTime - LOOP_PERIOD + ERROR_FLAG_LOOP_OFFSET;
-  button_sampler.lastExecutionTime  = loopStartTime - LOOP_PERIOD + BUTTON_LOOP_OFFSET;
+  temp.lastExecutionTime  = loopStartTime - LOOP_PERIOD + TEMP_LOOP_OFFSET;
+  salt.lastExecutionTime  = loopStartTime - LOOP_PERIOD + SALT_LOOP_OFFSET;
   state_estimator.lastExecutionTime = loopStartTime - LOOP_PERIOD + XY_STATE_ESTIMATOR_LOOP_OFFSET;
   surface_control.lastExecutionTime        = loopStartTime - LOOP_PERIOD + SURFACE_CONTROL_LOOP_OFFSET;
   logger.lastExecutionTime          = loopStartTime - LOOP_PERIOD + LOGGER_LOOP_OFFSET;
@@ -113,7 +122,10 @@ void loop() {
     printer.printValue(6,surface_control.printString());
     printer.printValue(7,motor_driver.printState());
     printer.printValue(8,imu.printRollPitchHeading());        
-    printer.printValue(9,imu.printAccels());
+    printer.printValue(9,imu.printAccels()) ;
+    printer.printValue(10, temp.printState());
+    printer.printValue(11, salt.printState());
+    printer.printValue(12, sonar.printState());
     printer.printToSerial();  // To stop printing, just comment this line out
   }
 
@@ -144,20 +156,34 @@ void loop() {
   }
 
  // uses the ButtonSampler library to read a button -- use this as a template for new libraries!
-  if ( currentTime-button_sampler.lastExecutionTime > LOOP_PERIOD ) {
-    button_sampler.lastExecutionTime = currentTime;
-    button_sampler.updateState();
+  if ( currentTime-temp.lastExecutionTime > LOOP_PERIOD ) {
+    temp.lastExecutionTime = currentTime;
+    temp.updateState();
   }
+
+  if ( currentTime-salt.lastExecutionTime > LOOP_PERIOD ) {
+    salt.lastExecutionTime = currentTime;
+
+    
+    salt.updateState();
+    
+    
+  }
+  
+
 
   if ( currentTime-imu.lastExecutionTime > LOOP_PERIOD ) {
     imu.lastExecutionTime = currentTime;
-    imu.read();     // blocking I2C calls
+    imu.read();
   }
+  
  
   //if ( currentTime-gps.lastExecutionTime > LOOP_PERIOD ) {
   //  gps.lastExecutionTime = currentTime;
     gps.read(&GPS); // blocking UART calls
   //}
+
+  sonar.read();
 
   if ( currentTime-state_estimator.lastExecutionTime > LOOP_PERIOD ) {
     state_estimator.lastExecutionTime = currentTime;
@@ -173,6 +199,9 @@ void loop() {
     logger.lastExecutionTime = currentTime;
     logger.log();
   }
+
+  imu.updateFilter(accOffset);
+  accOffset++;
 }
 
 void EFA_Detected(void){
