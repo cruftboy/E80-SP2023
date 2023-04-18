@@ -22,7 +22,6 @@ void XYStateEstimator::init(void) {
 void XYStateEstimator::updateState(imu_state_t * imu_state_p, gps_state_t * gps_state_p) {
   if (gps_state_p->num_sat >= N_SATS_THRESHOLD){
     gpsAcquired = 1;
-
     // set the values of state.x, state.y, and state.yaw
     // It can make use of the constants RADIUS_OF_EARTH, origin_lat, origin_lon (see XYStateEstimator.h)
     // You can access the current GPS latitude and longitude readings with gps_state_p->lat and gps_state_p->lon
@@ -31,26 +30,13 @@ void XYStateEstimator::updateState(imu_state_t * imu_state_p, gps_state_t * gps_
 
     // get x and y
     float cosOrigLat = cos(origin_lat*PI/180.0);
+    state.x = (gps_state_p->lon-origin_lon)*PI/180.0*RADIUS_OF_EARTH_M*cosOrigLat;
+    state.y = (gps_state_p->lat-origin_lat)*PI/180.0*RADIUS_OF_EARTH_M;
 
-    float dlatrad = (gps_state_p->lat - origin_lat)*PI/180;
-    float dlonrad = (gps_state_p->lon - origin_lon)*PI/180;
-
-    state.y = RADIUS_OF_EARTH*dlatrad;
-    state.x = RADIUS_OF_EARTH*dlonrad*cosOrigLat;
-
+    // get yaw
     float heading_rad = imu_state_p->heading*PI/180.0; // convert to radians
-    float roll_rad = imu_state_p->roll*PI/180.0;
-    float yaw_rad = imu_state_p->pitch*PI/180.0;
-
-
-
-
-    float yaw = -(heading_rad+(PI/2));
-
-    if (yaw > PI) yaw = yaw - PI;
-    if (yaw < -PI) yaw = yaw + PI;
-
-    state.yaw = yaw;
+    float yaw_rad = -heading_rad + PI/2.0; // adjust from 0=North, CWW=(+) to 0=East, CCW=(+)
+    state.yaw = angleDiff(yaw_rad);
     ///////////////////////////////////////////////////////////////////////
     // don't change code past this point
     ///////////////////////////////////////////////////////////////////////

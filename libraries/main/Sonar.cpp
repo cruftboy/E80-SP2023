@@ -11,6 +11,7 @@ Sonar::Sonar(void)
 void Sonar::init(void)
 {
     mySerial.begin(9600);
+    pinMode(24, INPUT_PULLDOWN);
 }
 
 

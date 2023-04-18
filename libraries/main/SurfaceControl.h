@@ -31,16 +31,14 @@ public:
   // control fields
   float yaw_des;         // desired yaw
   float yaw;             // current yaw
-  float yaw_e;           // error in yaw
   float dist;            // distance to waypoint
   float u;               // control effort
-  float Kp = 10.0;       // proportional control gain
-  float Kd = 100;        // distance gain
-  float Kr = 1.0;        // right motor gain correction
-  float Kl = 1.0;        // left motor gain correction
+  float Kp=10.0;         // proportional control gain
+  float Kr=1.0;          // right motor gain correction
+  float Kl=1.0;          // left motor gain correction
+  float avgPower = 50.0; // average forward thrust
   float uR;              // right motor effort
   float uL;              // left motor effort
-  float uD;              // main power effort
 
   bool navigateState = 1;
   bool atPoint;

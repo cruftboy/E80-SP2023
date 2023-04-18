@@ -52,29 +52,13 @@ void SurfaceControl::navigate(xy_state_t * state, gps_state_t * gps_state_p, int
     // You can access the x and y coordinates calculated in XYStateEstimator.cpp using state->x and state->y respectively
     // You can access the yaw calculated in XYStateEstimator.cpp using state->yaw
 
-    //////////////////////////////////////////////////////////////////////
-    // write code here
-    //////////////////////////////////////////////////////////////////////
     yaw_des = atan2(y_des - state->y, x_des - state->x);
-    dist = sqrt(pow(y_des - state->y, 2) + pow(x_des - state->x, 2));
+    yaw = state->yaw;
+    u = Kp*angleDiff(yaw_des - yaw);
 
-    yaw_e = angleDiff(yaw_des - yaw);
-
-    u = yaw_e*Kp;
-    uD = dist*Kd;
-
-    uR = (u+uD)*Kr;
-    uL = (u-uD)*Kl;
-
-    // find scale effort
-    float max = abs(uR);
-    if(abs(uL) > max) max = abs(uL);
-
-
-    ///////////////////////////////////////////////////////////////////////
-    // don't change code past this point
-    ///////////////////////////////////////////////////////////////////////
-
+    uL = max(0.0,min(255.0,(avgPower - u)*Kl));
+    uR = max(0.0,min(255.0,(avgPower + u)*Kr));
+    
   }
   else {
     gpsAcquired = 0;
