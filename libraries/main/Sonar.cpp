@@ -10,34 +10,34 @@ Sonar::Sonar(void)
 
 void Sonar::init(void)
 {
-    mySerial.begin(9600);
-    pinMode(24, INPUT_PULLDOWN);
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(INTERRUPT_PIN, INPUT);
 }
 
 
 void Sonar::read(void)
 // This function is called in the main loop of Default_Robot.ino
 {
-  do{
-    for(int i=0;i<4;i++)
-    {
-      data[i]=mySerial.read();
-    }
-  }while(mySerial.read()==0xff);
+  digitalWrite(TRIG_PIN, HIGH); // trigger
+  delayMicroseconds(20);
+  digitalWrite(TRIG_PIN, LOW);
+  float start = micros();
+  float now;
+  bool flag = false;
+  do {
+    now = micros();
 
-  mySerial.clear();
-
-  if(data[0]==0xff)
-    {
-
-      int sum;
-      sum=(data[0]+data[1]+data[2])&0x00FF;
-      if(sum==data[3])
-      {
-        distance=(data[1]<<8)+data[2];
-        rawdist = distance/10;
-      }
-    }
+    //flag = max(flag,analogRead(INTERRUPT_PIN));
+    flag = (analogRead(INTERRUPT_PIN)>5);
+  }
+  while(now-start < 5000 && !flag); // give up after 5 ms
+  
+  if(now-start >= 5000) {
+    dist = 0;
+  }
+  else {
+    dist = 1500.0f*((now-start)/2.0f)/1000000.0f;
+  }
 }
 
 
@@ -45,13 +45,13 @@ String Sonar::printState(void)
 // This function returns a string that the Printer class 
 // can print to the serial monitor if desired
 {
-  return "Distance: " + String(rawdist) + " cm";
+  return "Distance: " + String(dist) + " cm";
 }
 
 size_t Sonar::writeDataBytes(unsigned char * buffer, size_t idx)
 // This function writes data to the micro SD card
 {
   float * data_slot = (float *) &buffer[idx];
-  data_slot[0] = rawdist;
+  data_slot[0] = dist;
   return idx + sizeof(float);
 }

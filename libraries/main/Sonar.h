@@ -1,6 +1,7 @@
 #ifndef __SONAR_h__
 #define __SONAR_h__
-#define mySerial Serial6
+#define TRIG_PIN 24
+#define INTERRUPT_PIN 25
 
 #include <Arduino.h>
 #include "DataSource.h"
@@ -14,10 +15,8 @@ public:
 
   void init(void);
 
-  static const int window = 5;
 
   // Managing state
-  float rawdist;
   float dist;
   unsigned char data[4]={};
   void read(void);

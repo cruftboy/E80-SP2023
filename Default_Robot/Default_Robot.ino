@@ -182,8 +182,10 @@ void loop() {
   //  gps.lastExecutionTime = currentTime;
     gps.read(&GPS); // blocking UART calls
   //}
-
-  sonar.read();
+  if(currentTime-sonar.lastExecutionTime > LOOP_PERIOD) {
+    sonar.read();
+  }
+  
 
   if ( currentTime-state_estimator.lastExecutionTime > LOOP_PERIOD ) {
     state_estimator.lastExecutionTime = currentTime;
