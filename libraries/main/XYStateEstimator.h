@@ -49,8 +49,8 @@ public:
 
 private:
   // set coordinates of chosen origin below
-  const float origin_lat = 34.1094075;
-  const float origin_lon = -117.7127837;
+  const float origin_lat = 33.4628679;
+  const float origin_lon = -117.7057369;
   const float RADIUS_OF_EARTH = 6378100;
 
   bool gpsAcquired;

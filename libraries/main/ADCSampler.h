@@ -21,7 +21,7 @@ public:
 
   // Managing state
   int sample [NUM_PINS];
-  void updateSample(void);
+  void updateSample(float);
   String printSample(void);
 
   // Write out

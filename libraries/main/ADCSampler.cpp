@@ -16,7 +16,7 @@ void ADCSampler::init(void)
 }
 
 
-void ADCSampler::updateSample(void)
+void ADCSampler::updateSample(float dist)
 {
   // maps pins to variable names
   // A10-A13 are pins 34-37, A14 is pin 40, rest same as pinout picture
@@ -25,6 +25,7 @@ void ADCSampler::updateSample(void)
   for (int i=0; i<NUM_PINS; i++){
     sample[i] = analogRead(pinMap[i]);
   }
+  sample[NUM_PINS-1] = (int)dist;
 }
 
 String ADCSampler::printSample(void)

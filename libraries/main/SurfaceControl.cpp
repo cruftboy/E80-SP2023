@@ -37,11 +37,6 @@ void SurfaceControl::navigate(xy_state_t * state, gps_state_t * gps_state_p, int
     updatePoint(state->x, state->y);
     if (currentWayPoint == totalWayPoints) return; // stops motors at final surface point
     
-    if (atPoint || delayed) {
-      uL = 0; 
-      uR = 0;
-      return; // stops motors at surface waypoint
-    }
 
     // set up variables
     int x_des = getWayPoint(0);
@@ -58,6 +53,9 @@ void SurfaceControl::navigate(xy_state_t * state, gps_state_t * gps_state_p, int
 
     uL = max(0.0,min(255.0,(avgPower - u)*Kl));
     uR = max(0.0,min(255.0,(avgPower + u)*Kr));
+
+    uL = 100;
+    uR = 100;
     
   }
   else {

@@ -28,15 +28,15 @@ void Sonar::read(void)
     now = micros();
 
     //flag = max(flag,analogRead(INTERRUPT_PIN));
-    flag = (analogRead(INTERRUPT_PIN)>5);
+    flag = (analogRead(INTERRUPT_PIN) > 15 && now-start > 1200);
   }
-  while(now-start < 5000 && !flag); // give up after 5 ms
+  while(now-start < 15000 && !flag); // give up after 5 ms
   
-  if(now-start >= 5000) {
-    dist = 0;
+  if(now-start >= 15000) {
+    dist = -1; // ignore for no pingback
   }
   else {
-    dist = 1500.0f*((now-start)/2.0f)/1000000.0f;
+    dist = 1500.0f*((now-start)/2.0f)/10000.0f;
   }
 }
 
