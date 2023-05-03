@@ -37,20 +37,6 @@ void SensorIMU::updateFilter(int readOffset) {
   float ay = -(float)raw_acc_data[1]; // The IMU STILL doesn't use the RHR
   float az = (float)raw_acc_data[2];
 
-  // Remove offsets from acceleration measurements
-
-/*
-  if(readOffset == 1) {
-    state.rawX = ax - accel_offsets[0];
-    state.rawY = ay - accel_offsets[1];
-    state.rawZ = az - accel_offsets[2];
-
-  } else {
-    state.rawX = state.rawX*(1-1.0f/readOffset) + (ax - accel_offsets[0])*(1.0f/readOffset);
-    state.rawY = state.rawY*(1-1.0f/readOffset) + (ay - accel_offsets[1])*(1.0f/readOffset);
-    state.rawZ = state.rawZ*(1-1.0f/readOffset) + (az - accel_offsets[2])*(1.0f/readOffset);
-  }
-  */
   readOffset = readOffset%window;
 
   state.accelX -= (float)movingAccX[readOffset]/window;
@@ -69,9 +55,6 @@ void SensorIMU::updateFilter(int readOffset) {
 }
 
 void SensorIMU::read() {
-
-  
-
   int32_t raw_mag_data[3];
   myIMU.Mag->GetAxes(raw_mag_data);
 
@@ -96,63 +79,6 @@ void SensorIMU::read() {
 
   // populate the roll, pitch, yaw with simple orientation calcs  
   getOrientation(state.accelX,state.accelY,state.accelZ,state.magX,state.magY,state.magY);
-
-  
-
-
-  
-
-  /*
-  // fix acceleration to world coordinates NEW CODE (DELETE IF BAD)
-
-  float localx = state.accelX;
-  float localy = state.accelY;
-  float localz = state.accelZ;
-
-  float gamma = state.roll*PI/180; // about x ccw+
-  float beta = state.pitch*PI/180; // about y ccw+
-  float alpha = state.heading*PI/180; // about z ccw+
-
-  float sin_a = sin(alpha);
-  float cos_a = cos(alpha);
-  float sin_b = sin(beta);
-  float cos_b = cos(beta);
-  float sin_g = sin(gamma);
-  float cos_g = cos(gamma);
-
-
-  // rotate around x
-  localx = state.accelX;
-  localy = state.accelY;
-  localz = state.accelZ;
-  state.accelY = cos_g*localy - sin_g*localz;
-  state.accelZ = sin_g*localy + cos_g*localz;
-
-
-  // rotate around y
-  localx = state.accelX;
-  localy = state.accelY;
-  localz = state.accelZ;
-  state.accelX = cos_b*localx + sin_b*localz;
-  state.accelZ = -sin_b*localx + cos_b*localz;
-
-
-  // rotate around z
-  localx = state.accelX;
-  localy = state.accelY;
-  localz = state.accelZ;
-  state.accelX = cos_a*localx - sin_a*localy;
-  state.accelY = sin_a*localx + cos_a*localy;
-
-  */
-
-
-
-  //state.accelX = (cos_b*cos_g)*localx + (sin_a*sin_b*cos_g-cos_a*sin_g)*localy + (cos_a*sin_b*cos_g+sin_a*sin_g)*localz;
-  //state.accelY = (cos_b*sin_g)*localx + (sin_a*sin_b*sin_g+cos_a*cos_g)*localy + (cos_a*sin_b*sin_g-sin_a*cos_g)*localz;
-  //state.accelZ = (-sin_b)*localx + (sin_a*cos_b)*cos_a + (cos_a*cos_b)*localz;
-
-
 
 }
 

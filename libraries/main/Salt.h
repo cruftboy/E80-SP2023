@@ -6,7 +6,7 @@
 #include "Pinouts.h"
 
 /*
- * Salt implements SD logging for the thermistor
+ * Salt implements SD logging for the salinity sensor
  */
 
 
